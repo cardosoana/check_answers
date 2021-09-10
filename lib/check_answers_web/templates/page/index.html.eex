@@ -1,0 +1,7 @@
+<section class="phx-hero">
+  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
+</section>
+
+<section class="row">
+  <%= render "form.html", Map.put(assigns, :action, Routes.page_path(@conn, :check)) %>
+</section>

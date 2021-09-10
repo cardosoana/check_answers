@@ -1,0 +1,17 @@
+<section class="column">
+
+<table>
+    <thead>
+      <tr>
+        <th>Validação</th>
+      </tr>
+    </thead>
+    <tbody>
+  <%= for result <- @results do %>
+      <tr>
+        <td><%= result %></td>
+      </tr>
+  <% end %>
+    </tbody>
+  </table>
+</section>
