@@ -16,8 +16,8 @@ defmodule CheckAnswersWeb.Router do
   scope "/", CheckAnswersWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
-    post "/check", PageController, :check
+    get "/", TemplateValidatorController, :validate
+    post "/", TemplateValidatorController, :submit
   end
 
   # Other scopes may use custom stacks.

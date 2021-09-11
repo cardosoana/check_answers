@@ -3,5 +3,5 @@
 </section>
 
 <section class="row">
-  <%= render "form.html", Map.put(assigns, :action, Routes.page_path(@conn, :check)) %>
+  <%= render "form.html", Map.put(assigns, :action, Routes.template_validator_path(@conn, :submit)) %>
 </section>

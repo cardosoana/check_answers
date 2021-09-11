@@ -1,10 +1,9 @@
-defmodule CheckAnswers.CheckAnswers do
+defmodule CheckAnswers.TemplateValidator do
   require CSV
 
   @question_answer_regex ~r/\d+.&#9;Resposta correta: [A-Z]/
 
-  def check(answer_files, template_file, questions_to_check) do
-    # require IEx; IEx.pry
+  def validate(answer_files, template_file, questions_to_check) do
     file_question_answers =
       answer_files
       |> parse_html_files_to_string()
@@ -58,7 +57,6 @@ defmodule CheckAnswers.CheckAnswers do
     {question_int, _} = Integer.parse(question)
     %{question: question_int, answer: answer}
   end
-  
 
   defp extract_question_answers(string) do
     Regex.scan(@question_answer_regex, string)
