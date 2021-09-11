@@ -1,5 +1,6 @@
 defmodule CheckAnswers.TemplateValidator do
   require CSV
+  require Logger
 
   @question_answer_regex ~r/\d+.&#9;Resposta correta: [A-Z]/
 
@@ -79,6 +80,10 @@ defmodule CheckAnswers.TemplateValidator do
   end
 
   defp parse_html_files_to_string(files) do
+    Logger.info(files)
+    Logger.info(Path.wildcard("#{File.cwd!()}/tmp/*"))
+    Logger.info(File.cwd!())
+
     {_, all_text} =
       Enum.map_reduce(files, "", fn file, all_text ->
         {:ok, file_text} =

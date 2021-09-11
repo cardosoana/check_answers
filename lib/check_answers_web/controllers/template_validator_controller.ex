@@ -1,5 +1,6 @@
 defmodule CheckAnswersWeb.TemplateValidatorController do
   use CheckAnswersWeb, :controller
+  require Logger
 
   def validate(conn, _params) do
     render(conn, "validate.html", changeset: :check_answers)
@@ -32,6 +33,8 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
 
   defp upload_file(original_file_path, file_name) do
     new_file_name = "tmp/#{timestamp}_#{file_name}"
+    Logger.info(File.cwd!())
+
     File.cp(original_file_path, "#{File.cwd!()}/#{new_file_name}")
     new_file_name
   end
