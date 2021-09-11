@@ -2,6 +2,8 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
   use CheckAnswersWeb, :controller
   require Logger
 
+  @root_path Application.fetch_env!(:check_answers, :root_path)
+
   def validate(conn, _params) do
     render(conn, "validate.html", changeset: :check_answers)
   end
@@ -30,17 +32,13 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
   end
 
   defp delete_files(files) do
-    Enum.each(files, fn file -> File.rm("#{File.cwd!()}/#{file}") end)
+    Enum.each(files, fn file -> File.rm("#{@root_path}#{file}") end)
   end
 
   defp upload_file(original_file_path, file_name) do
     new_file_name = "/tmp/#{timestamp}_#{file_name}"
 
-    a = File.cp(original_file_path, "#{new_file_name}")
-
-    if a != :ok do
-      Logger.info("NOT OK")
-    end
+    File.cp(original_file_path, "#{@root_path}#{new_file_name}")
     new_file_name
   end
 

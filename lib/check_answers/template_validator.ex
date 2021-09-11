@@ -1,8 +1,8 @@
 defmodule CheckAnswers.TemplateValidator do
   require CSV
-  require Logger
 
   @question_answer_regex ~r/\d+.&#9;Resposta correta: [A-Z]/
+  @root_path Application.fetch_env!(:check_answers, :root_path)
 
   def validate(answer_files, template_file, questions_to_validate) do
     question_answers =
@@ -71,7 +71,7 @@ defmodule CheckAnswers.TemplateValidator do
   end
 
   defp parse_csv_file(file) do
-    file
+    "#{@root_path}#{file}"
     |> File.stream!()
     |> CSV.decode()
     |> Enum.map(& &1)
@@ -79,14 +79,9 @@ defmodule CheckAnswers.TemplateValidator do
   end
 
   defp parse_html_files_to_string(files) do
-    Logger.info(files)
-    Logger.info(Path.wildcard("tmp/*"))
-
     {_, all_text} =
       Enum.map_reduce(files, "", fn file, all_text ->
-        {:ok, file_text} =
-          file
-          |> File.read()
+        {:ok, file_text} = File.read("#{@root_path}#{file}")
 
         {file_text, all_text <> file_text}
       end)
