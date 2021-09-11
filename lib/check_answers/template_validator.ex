@@ -72,7 +72,6 @@ defmodule CheckAnswers.TemplateValidator do
 
   defp parse_csv_file(file) do
     file
-    |> Path.expand(File.cwd!())
     |> File.stream!()
     |> CSV.decode()
     |> Enum.map(& &1)
@@ -81,14 +80,12 @@ defmodule CheckAnswers.TemplateValidator do
 
   defp parse_html_files_to_string(files) do
     Logger.info(files)
-    Logger.info(Path.wildcard("#{File.cwd!()}/tmp/*"))
-    Logger.info(File.cwd!())
+    Logger.info(Path.wildcard("tmp/*"))
 
     {_, all_text} =
       Enum.map_reduce(files, "", fn file, all_text ->
         {:ok, file_text} =
           file
-          |> Path.expand(File.cwd!())
           |> File.read()
 
         {file_text, all_text <> file_text}

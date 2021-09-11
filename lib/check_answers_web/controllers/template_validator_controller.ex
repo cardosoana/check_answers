@@ -33,9 +33,12 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
 
   defp upload_file(original_file_path, file_name) do
     new_file_name = "tmp/#{timestamp}_#{file_name}"
-    Logger.info(File.cwd!())
 
-    File.cp(original_file_path, "#{File.cwd!()}/#{new_file_name}")
+    a = File.cp(original_file_path, "#{new_file_name}")
+
+    if a != :ok do
+      Logger.info("NOT OK")
+    end
     new_file_name
   end
 
