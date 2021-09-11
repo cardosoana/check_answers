@@ -1,6 +1,6 @@
  <%= form_for @changeset, @action, [multipart: true], fn f -> %>
     <div class="form-group">
-      <label>Validação das respostas de questões de 6 a 180 do Simulado do Enem</label>
+      <label>Validação das respostas das questões 6 a 180 do Simulado ENEM</label>
       <br>
 
       <label>Gabarito</label>
