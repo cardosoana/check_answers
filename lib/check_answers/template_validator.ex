@@ -1,52 +1,50 @@
 defmodule CheckAnswers.TemplateValidator do
   require CSV
 
-  @question_answer_regex ~r/\d+.&#9;Resposta correta: [A-Z]/
   @root_path Application.fetch_env!(:check_answers, :root_path)
+  @answer_regex ~r/\d+.&#9;Resposta correta: [A-Z]/
 
   def validate(answer_files, template_file, questions_to_validate) do
-    question_answers =
-      answer_files
-      |> parse_html_files_to_string()
-      |> extract_question_answers()
-      |> Enum.map(fn question_answer ->
-        question_answer_from_file_to_map(question_answer)
-      end)
-
-    template_answers =
-      template_file
-      |> parse_csv_file()
-      |> Enum.map(fn {:ok, csv_row} ->
-        question_answer_from_csv_to_map(csv_row)
-      end)
-
-    compare_answers(question_answers, template_answers, questions_to_validate)
+    compare_answers(
+      answers(answer_files),
+      template_answers(template_file),
+      questions_to_validate
+    )
   end
 
   defp compare_answers(answers, template_answers, questions_to_validate) do
     Enum.map(questions_to_validate, fn question_number ->
-      question_answer =
-        answers
-        |> Enum.find(&(&1.question == question_number))
-        |> Map.get(:answer)
+      question_answer = find_answer(answers, question_number)
+      template_answer = find_answer(template_answers, question_number)
 
-      template_answer =
-        template_answers
-        |> Enum.find(&(&1.question == question_number))
-        |> Map.get(:answer)
+      question_answers = %{
+        question: question_number,
+        correct_answer: question_answer,
+        template_answer: template_answer
+      }
 
-      validation = if question_answer == template_answer, do: :ok, else: :error
-
-      {validation,
-       %{
-         question: question_number,
-         correct_answer: question_answer,
-         template_answer: template_answer
-       }}
+      if question_answer == template_answer do
+        {:ok, question_answers}
+      else
+        {:error, question_answers}
+      end
     end)
   end
 
-  defp question_answer_from_file_to_map(string) do
+  defp answers(answer_files) do
+    answer_files
+    |> parse_html_to_string()
+    |> scan_answers()
+    |> Enum.map(&format_answer(&1))
+  end
+
+  defp template_answers(template_file) do
+    template_file
+    |> parse_csv()
+    |> Enum.map(&format_template_answer(&1))
+  end
+
+  defp format_answer(string) do
     [question, answer] =
       string
       |> Enum.at(0)
@@ -56,7 +54,7 @@ defmodule CheckAnswers.TemplateValidator do
     %{question: question_int, answer: answer}
   end
 
-  defp question_answer_from_csv_to_map(csv_row) do
+  defp format_template_answer({:ok, csv_row}) do
     [_, _, _, _, question, answer] =
       csv_row
       |> Enum.at(0)
@@ -66,11 +64,11 @@ defmodule CheckAnswers.TemplateValidator do
     %{question: question_int, answer: answer}
   end
 
-  defp extract_question_answers(string) do
-    Regex.scan(@question_answer_regex, string)
+  defp scan_answers(string) do
+    Regex.scan(@answer_regex, string)
   end
 
-  defp parse_csv_file(file) do
+  defp parse_csv(file) do
     "#{@root_path}#{file}"
     |> File.stream!()
     |> CSV.decode()
@@ -78,14 +76,16 @@ defmodule CheckAnswers.TemplateValidator do
     |> Enum.drop(1)
   end
 
-  defp parse_html_files_to_string(files) do
-    {_, all_text} =
-      Enum.map_reduce(files, "", fn file, all_text ->
-        {:ok, file_text} = File.read("#{@root_path}#{file}")
+  defp parse_html_to_string(files) do
+    files
+    |> Enum.map(&File.read!("#{@root_path}#{&1}"))
+    |> Enum.join()
+  end
 
-        {file_text, all_text <> file_text}
-      end)
-
-    all_text
+  defp find_answer(answers, question_number) do
+    case Enum.find(answers, &(&1.question == question_number)) do
+      %{answer: answer} -> answer
+      _ -> "não encontrada"
+    end
   end
 end

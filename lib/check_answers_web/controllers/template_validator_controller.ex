@@ -10,7 +10,7 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
 
   def submit(conn, %{"answer_files" => answer_files, "template" => template_file} = params) do
     Logger.info(params)
-    
+
     template_file_name =
       if template_file do
         upload_file(template_file.path, template_file.filename)
