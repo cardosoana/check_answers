@@ -54,14 +54,15 @@ defmodule CheckAnswers.TemplateValidator do
     %{question: question_int, answer: answer}
   end
 
-  defp format_template_answer({:ok, csv_row}) do
-    [_, _, _, _, question, answer] =
-      csv_row
-      |> Enum.at(0)
-      |> String.split(";")
+  defp format_template_answer({:ok, [csv_row | _]}) do
+    case String.split(csv_row, ";") do
+      [_, _, _, _, question, answer] ->
+        {question_int, _} = Integer.parse(question)
+        %{question: question_int, answer: answer}
 
-    {question_int, _} = Integer.parse(question)
-    %{question: question_int, answer: answer}
+      _ ->
+        raise "CSV com formato incorreto!"
+    end
   end
 
   defp scan_answers(string) do

@@ -10,6 +10,7 @@ defmodule CheckAnswers.TemplateValidatorTest do
   @template_file "/test/support/fixtures/template.csv"
   @wrong_template_file "/test/support/fixtures/wrong_template.csv"
   @missing_questions_template_file "/test/support/fixtures/missing_questions_template.csv"
+  @wrong_format_template_file "/test/support/fixtures/wrong_format_template.csv"
 
   @questions_to_validate 6..10
   @correct_answers %{
@@ -92,6 +93,16 @@ defmodule CheckAnswers.TemplateValidatorTest do
       assert {:error, question_answers} = Enum.at(validations, 4)
       assert question_answers.correct_answer == "não encontrada"
       assert question_answers.template_answer == "E"
+    end
+
+    test "raises error when template format is wrong" do
+      assert_raise RuntimeError, "CSV com formato incorreto!", fn ->
+        TemplateValidator.validate(
+          @answer_files,
+          @wrong_format_template_file,
+          @questions_to_validate
+        )
+      end
     end
   end
 end
