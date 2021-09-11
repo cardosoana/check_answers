@@ -1,16 +1,22 @@
 <section class="column">
-
+<h2>Inconsistências<h2>
 <table>
     <thead>
       <tr>
-        <th>Validação</th>
+        <th>Questão</th>
+        <th>Resposta Correta</th>
+        <th>Resposta do Gabarito</th>
       </tr>
     </thead>
     <tbody>
-  <%= for result <- @results do %>
+  <%= for {validation, question_answers} <- @results do %>
+    <%= if validation == :error do %>
       <tr>
-        <td><%= result %></td>
+        <td><%= question_answers.question %></td>
+        <td><%= question_answers.correct_answer %></td>
+        <td><%= question_answers.template_answer %></td>
       </tr>
+    <% end %>
   <% end %>
     </tbody>
   </table>

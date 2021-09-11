@@ -19,7 +19,7 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
       end
 
     results =
-      CheckAnswers.TemplateValidator.validate(answer_file_names, template_file_name, 6..90)
+      CheckAnswers.TemplateValidator.validate(answer_file_names, template_file_name, 6..180)
 
     delete_files(answer_file_names ++ [template_file_name])
 

@@ -3,8 +3,8 @@ defmodule CheckAnswers.TemplateValidator do
 
   @question_answer_regex ~r/\d+.&#9;Resposta correta: [A-Z]/
 
-  def validate(answer_files, template_file, questions_to_check) do
-    file_question_answers =
+  def validate(answer_files, template_file, questions_to_validate) do
+    question_answers =
       answer_files
       |> parse_html_files_to_string()
       |> extract_question_answers()
@@ -12,29 +12,36 @@ defmodule CheckAnswers.TemplateValidator do
         question_answer_from_file_to_map(question_answer)
       end)
 
-    template_question_answers =
+    template_answers =
       template_file
       |> parse_csv_file()
       |> Enum.map(fn {:ok, csv_row} ->
         question_answer_from_csv_to_map(csv_row)
       end)
 
-    Enum.map(questions_to_check, fn question_number ->
-      answer_file_answer =
-        file_question_answers
+    compare_answers(question_answers, template_answers, questions_to_validate)
+  end
+
+  defp compare_answers(answers, template_answers, questions_to_validate) do
+    Enum.map(questions_to_validate, fn question_number ->
+      question_answer =
+        answers
         |> Enum.find(&(&1.question == question_number))
         |> Map.get(:answer)
 
       template_answer =
-        template_question_answers
+        template_answers
         |> Enum.find(&(&1.question == question_number))
         |> Map.get(:answer)
 
-      if answer_file_answer == template_answer do
-        "Questão #{question_number}: OK"
-      else
-        "Questão #{question_number}: INCORRETA"
-      end
+      validation = if question_answer == template_answer, do: :ok, else: :error
+
+      {validation,
+       %{
+         question: question_number,
+         correct_answer: question_answer,
+         template_answer: template_answer
+       }}
     end)
   end
 
