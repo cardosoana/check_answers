@@ -22,7 +22,7 @@ defmodule CheckAnswers.TemplateValidatorTest do
   }
 
   describe "#validate" do
-    test "returns list of valid when all template answers are correct" do
+    test "returns :ok when template answer is correct" do
       validations =
         TemplateValidator.validate(
           @answer_files,
@@ -44,7 +44,7 @@ defmodule CheckAnswers.TemplateValidatorTest do
       end)
     end
 
-    test "returns error when template answer is incorrect" do
+    test "returns :error when template answer is incorrect" do
       validations =
         TemplateValidator.validate(
           @answer_files,
@@ -61,7 +61,7 @@ defmodule CheckAnswers.TemplateValidatorTest do
       assert question_answers.template_answer == "B"
     end
 
-    test "returns error when template does not contain the answer" do
+    test "returns :error when template does not contain the answer" do
       validations =
         TemplateValidator.validate(
           @answer_files,
@@ -78,7 +78,7 @@ defmodule CheckAnswers.TemplateValidatorTest do
       assert question_answers.template_answer == "não encontrada"
     end
 
-    test "returns error when answer files do not contain the answer" do
+    test "returns :error when answer files do not contain the answer" do
       validations =
         TemplateValidator.validate(
           ["/test/support/fixtures/responses01.html"],
@@ -93,6 +93,23 @@ defmodule CheckAnswers.TemplateValidatorTest do
       assert {:error, question_answers} = Enum.at(validations, 4)
       assert question_answers.correct_answer == "não encontrada"
       assert question_answers.template_answer == "E"
+    end
+
+    test "returns :error when template and answer files do not contain the answer" do
+      validations =
+        TemplateValidator.validate(
+          ["/test/support/fixtures/responses01.html"],
+          @missing_questions_template_file,
+          @questions_to_validate
+        )
+
+      assert {:error, question_answers} = Enum.at(validations, 3)
+      assert question_answers.correct_answer == "não encontrada"
+      assert question_answers.template_answer == "não encontrada"
+
+      assert {:error, question_answers} = Enum.at(validations, 4)
+      assert question_answers.correct_answer == "não encontrada"
+      assert question_answers.template_answer == "não encontrada"
     end
 
     test "raises error when template format is wrong" do

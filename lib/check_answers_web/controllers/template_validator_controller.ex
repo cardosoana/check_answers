@@ -27,7 +27,7 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
       handle_validations(conn, validations)
     rescue
       error ->
-      handle_error(conn, error)
+        handle_error(conn, error)
     end
   end
 
@@ -53,9 +53,10 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
   end
 
   defp handle_validations(conn, validations) do
-    invalid_answers = Enum.filter(validations, fn {validation, _} ->
-      validation == :error
-    end)
+    invalid_answers =
+      Enum.filter(validations, fn {validation, _} ->
+        validation == :error
+      end)
 
     if invalid_answers == [] do
       conn

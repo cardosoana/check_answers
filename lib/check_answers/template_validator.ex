@@ -3,6 +3,7 @@ defmodule CheckAnswers.TemplateValidator do
 
   @root_path Application.fetch_env!(:check_answers, :root_path)
   @answer_regex ~r/\d+.&#9;Resposta correta: [A-Z]/
+  @not_found_message "não encontrada"
 
   def validate(answer_files, template_file, questions_to_validate) do
     compare_answers(
@@ -14,16 +15,16 @@ defmodule CheckAnswers.TemplateValidator do
 
   defp compare_answers(answers, template_answers, questions_to_validate) do
     Enum.map(questions_to_validate, fn question_number ->
-      question_answer = find_answer(answers, question_number)
+      answer = find_answer(answers, question_number)
       template_answer = find_answer(template_answers, question_number)
 
       question_answers = %{
         question: question_number,
-        correct_answer: question_answer,
+        correct_answer: answer,
         template_answer: template_answer
       }
 
-      if question_answer == template_answer do
+      if answer == template_answer && template_answer != @not_found_message do
         {:ok, question_answers}
       else
         {:error, question_answers}
@@ -86,7 +87,7 @@ defmodule CheckAnswers.TemplateValidator do
   defp find_answer(answers, question_number) do
     case Enum.find(answers, &(&1.question == question_number)) do
       %{answer: answer} -> answer
-      _ -> "não encontrada"
+      _ -> @not_found_message
     end
   end
 end
