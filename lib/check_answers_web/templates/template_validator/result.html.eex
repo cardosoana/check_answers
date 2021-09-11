@@ -20,4 +20,6 @@
   <% end %>
     </tbody>
   </table>
+
+  <span><%= link "Voltar", to: Routes.template_validator_path(@conn, :validate) %></span>
 </section>
