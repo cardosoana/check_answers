@@ -7,6 +7,8 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
   end
 
   def submit(conn, %{"answer_files" => answer_files, "template" => template_file} = params) do
+    Logger.info(params)
+    
     template_file_name =
       if template_file do
         upload_file(template_file.path, template_file.filename)
@@ -32,7 +34,7 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
   end
 
   defp upload_file(original_file_path, file_name) do
-    new_file_name = "tmp/#{timestamp}_#{file_name}"
+    new_file_name = "/tmp/#{timestamp}_#{file_name}"
 
     a = File.cp(original_file_path, "#{new_file_name}")
 
