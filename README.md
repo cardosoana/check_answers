@@ -1,7 +1,7 @@
 # CheckAnswers
 
 Essa aplicação valida as respostas do gabarito de simulados ENEM com base nos arquivos de resposta.
-Você pode accessa-la por[aqui](https://validadorgabarito.gigalixirapp.com/)
+Você pode accessa-la por [aqui](https://validadorgabarito.gigalixirapp.com/)
 
 ## Rodando a aplicação localmente
 
