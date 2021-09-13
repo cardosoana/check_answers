@@ -3,8 +3,8 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
   require Logger
 
   alias CheckAnswers.TemplateValidator
+  alias CheckAnswers.FilesHelper
 
-  @root_path Application.fetch_env!(:check_answers, :root_path)
   @questions_to_validate 6..180
 
   def validate(conn, _params) do
@@ -13,8 +13,8 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
 
   def submit(conn, %{"answer_files" => answer_files, "template" => template_file}) do
     try do
-      template_file_name = upload_file(template_file.path, template_file.filename)
-      answer_file_names = Enum.map(answer_files, &upload_file(&1.path, &1.filename))
+      template_file_name = FilesHelper.upload_file(template_file.path, template_file.filename)
+      answer_file_names = Enum.map(answer_files, &FilesHelper.upload_file(&1.path, &1.filename))
 
       validations =
         TemplateValidator.validate(
@@ -23,27 +23,12 @@ defmodule CheckAnswersWeb.TemplateValidatorController do
           @questions_to_validate
         )
 
-      delete_files(answer_file_names ++ [template_file_name])
+      FilesHelper.delete_files(answer_file_names ++ [template_file_name])
       handle_validations(conn, validations)
     rescue
       error ->
         handle_error(conn, error)
     end
-  end
-
-  defp delete_files(files) do
-    Enum.each(files, fn file -> File.rm("#{@root_path}#{file}") end)
-  end
-
-  defp upload_file(original_file_path, file_name) do
-    new_file_name = "/tmp/#{timestamp}_#{file_name}"
-
-    File.cp(original_file_path, "#{@root_path}#{new_file_name}")
-    new_file_name
-  end
-
-  defp timestamp do
-    :os.system_time(:milli_seconds)
   end
 
   defp handle_error(conn, error) do
