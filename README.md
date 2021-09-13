@@ -1,19 +1,14 @@
 # CheckAnswers
 
-To start your Phoenix server:
+Essa aplicação valida as respostas do gabarito de simulados ENEM com base nos arquivos de resposta.
+Você pode accessa-la por[aqui](https://validadorgabarito.gigalixirapp.com/)
 
-  * Install dependencies with `mix deps.get`
-  * Install Node.js dependencies with `npm install` inside the `assets` directory
-  * Start Phoenix endpoint with `mix phx.server`
+## Rodando a aplicação localmente
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Para rodar a aplicação você deve:
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+  * Instalar as dependências com `mix deps.get`
+  * Instalar as dependencias do Node.js com `npm install` dentro da pasta `assets`
+  * Inicializar a aplicação com `mix phx.server`
 
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+Agora você pode accessar [`localhost:4000`](http://localhost:4000) do seu navegador.
