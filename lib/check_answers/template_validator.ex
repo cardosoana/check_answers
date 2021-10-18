@@ -1,22 +1,19 @@
 defmodule CheckAnswers.TemplateValidator do
-  require CSV
+  alias CheckAnswers.FilesParser
 
-  @root_path Application.fetch_env!(:check_answers, :root_path)
-  @answer_regex ~r/\d+.&#9;Resposta correta: [A-Z]/
-  @not_found_message "não encontrada"
+  @not_found_message "NÃO ENCONTRADA"
 
   def validate(answer_files, template_file, questions_to_validate) do
-    compare_answers(
-      answers(answer_files),
-      template_answers(template_file),
-      questions_to_validate
-    )
+    answers = FilesParser.answers_from_html(answer_files)
+    template_answers = FilesParser.answers_from_csv(template_file)
+
+    compare_answers(answers, template_answers, questions_to_validate)
   end
 
   defp compare_answers(answers, template_answers, questions_to_validate) do
     Enum.map(questions_to_validate, fn question_number ->
-      answer = find_answer(answers, question_number)
-      template_answer = find_answer(template_answers, question_number)
+      answer = find_answer(answers, question_number) |> String.upcase()
+      template_answer = find_answer(template_answers, question_number) |> String.upcase()
 
       question_answers = %{
         question: question_number,
@@ -24,7 +21,7 @@ defmodule CheckAnswers.TemplateValidator do
         template_answer: template_answer
       }
 
-      if answer == template_answer && template_answer != @not_found_message do
+      if same_answer?(answer, template_answer) do
         {:ok, question_answers}
       else
         {:error, question_answers}
@@ -32,56 +29,8 @@ defmodule CheckAnswers.TemplateValidator do
     end)
   end
 
-  defp answers(answer_files) do
-    answer_files
-    |> parse_html_to_string()
-    |> scan_answers()
-    |> Enum.map(&format_answer(&1))
-  end
-
-  defp template_answers(template_file) do
-    template_file
-    |> parse_csv()
-    |> Enum.map(&format_template_answer(&1))
-  end
-
-  defp format_answer(string) do
-    [question, answer] =
-      string
-      |> Enum.at(0)
-      |> String.split(".&#9;Resposta correta: ")
-
-    {question_int, _} = Integer.parse(question)
-    %{question: question_int, answer: answer}
-  end
-
-  defp format_template_answer({:ok, [csv_row | _]}) do
-    case String.split(csv_row, ";") do
-      [_, _, _, _, question, answer] ->
-        {question_int, _} = Integer.parse(question)
-        %{question: question_int, answer: answer}
-
-      _ ->
-        raise "CSV com formato incorreto!"
-    end
-  end
-
-  defp scan_answers(string) do
-    Regex.scan(@answer_regex, string)
-  end
-
-  defp parse_csv(file) do
-    "#{@root_path}#{file}"
-    |> File.stream!()
-    |> CSV.decode()
-    |> Enum.map(& &1)
-    |> Enum.drop(1)
-  end
-
-  defp parse_html_to_string(files) do
-    files
-    |> Enum.map(&File.read!("#{@root_path}#{&1}"))
-    |> Enum.join()
+  defp same_answer?(answer, template_answer) do
+    answer == template_answer && template_answer != @not_found_message
   end
 
   defp find_answer(answers, question_number) do
